@@ -1,0 +1,68 @@
+#!/usr/bin/env ruby
+
+require 'cgi'
+require 'json'
+require 'net/http'
+require 'optparse'
+
+API_KEY = 'AIzaSyDR5xOXOViVLMUyWWJM1iQefTaRiKkJfqs'
+VERSION = '1.0.0'
+
+# print a message to standard error and exit with nonzero status
+def die(msg)
+  warn msg
+  exit false
+end
+
+# parse command-line options
+opts = OptionParser.new do |opts|
+  opts.banner += ' term ...'
+
+  opts.separator ""
+  opts.separator "Print the URL of the first result of a YouTube search for " \
+                 "the given terms."
+  opts.separator ""
+  opts.separator "Options:"
+
+  opts.on('-h', '--help', 'Print this message and exit') do
+    puts opts
+    exit
+  end
+
+  opts.on('--version', 'Print version information and exit') do
+    puts "ytifl #{VERSION}"
+    exit
+  end
+end
+
+begin
+  opts.parse!
+rescue OptionParser::ParseError
+  die(opts)
+end
+
+die(opts) if ARGV.empty?
+
+# assemble query from command-line arguments
+query = CGI.escape(ARGV.join(' '))
+uri = URI('https://www.googleapis.com/youtube/v3/search?' \
+          "key=#{API_KEY}&part=id&maxResults=1&q=#{query}&type=video")
+
+# make HTTP request and parse response; handle exceptions
+begin
+  result = JSON.parse(Net::HTTP.get(uri))
+rescue StandardError => err
+  die(err)
+end
+
+# handle error conditions
+if result.has_key?('error')
+  error = result['error']['errors'][0]
+  die('Error making search API call: ' \
+      "#{error['message']}: #{error['domain']}: #{error['reason']}")
+elsif result['items'].empty?
+  die("No results for query: #{query}")
+end
+
+# print result URL
+puts "https://www.youtube.com/watch?v=#{result['items'][0]['id']['videoId']}"
