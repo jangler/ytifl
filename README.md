@@ -5,7 +5,12 @@ search for the given terms.
 
 Installation
 ------------
+Installation as Ruby gem:
+
 	gem install ytifl
+
+If you use Arch Linux or a derivative, you may also install via the
+[AUR package](https://aur.archlinux.org/packages/ytifl/).
 
 Usage
 -----
