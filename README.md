@@ -26,3 +26,8 @@ Example
 -------
 	$ ytifl story from north america
 	https://www.youtube.com/watch?v=ms2klX-puUU
+
+See also
+--------
+[ytool](https://github.com/jangler/ytool), a general-purpose interface to the
+YouTube data API.
